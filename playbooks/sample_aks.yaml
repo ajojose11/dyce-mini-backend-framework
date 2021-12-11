@@ -1,0 +1,6 @@
+AKS_resource_group: dyce_azure
+AKS_location: "North Europe"
+aks_name: dyce_azure_aks
+client_id: "dfb95e46-13e8-4bec-a677-0a5f973dc2bf"
+client_secret: "aa15065b-c5d7-4cd2-b5d1-d64019797969"
+k8s_version: "1.22.2"
