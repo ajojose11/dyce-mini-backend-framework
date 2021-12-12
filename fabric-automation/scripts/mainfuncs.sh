@@ -25,7 +25,7 @@ OPNAMES=([up]="$LINE0$LINE1" [netup]='imageget,certgen,netup,netstats' \
 # Print the usage message
 function printHelp() {
   echo "Usage: "
-  echo "  minifab <mode> [options]"
+  echo "  dyce <mode> [options]"
   echo "    <mode> - one of operations or combination of operations separated by comma"
   echo ""
   echo "      - 'up' - bring up the network and do all default channel and chaincode operations"
@@ -137,7 +137,7 @@ function isValidateCMD() {
 }
 
 function getRealRootDir() {
-  varpath=$(docker inspect --format '{{ range .Mounts }}{{ if eq .Destination "/home/vars" }}{{ .Source }}{{ end }}{{ end }}' minifab)
+  varpath=$(docker inspect --format '{{ range .Mounts }}{{ if eq .Destination "/home/vars" }}{{ .Source }}{{ end }}{{ end }}' dyce)
   hostroot=${varpath%/vars}
   hostroot=${hostroot//\\/\/}
 }
