@@ -6,7 +6,7 @@
     shell: az group create -l {{AKS_location}} -n {{AKS_resource_group}}
 
   - name: Create an AKS cluster
-    shell: az aks create --resource-group {{AKS_resource_group}} --name {{aks_name}} --kubernetes-version {{k8s_version}} --location {{AKS_location}} --node-vm-size Standard_D2_v3 --node-count 1 --generate-ssh-keys
+    shell: az aks create --resource-group {{AKS_resource_group}} --name {{aks_name}} --kubernetes-version {{k8s_version}} --location {{AKS_location}} --node-vm-size Standard_D2_v3 --node-count {{node_count}} --generate-ssh-keys
 
   - name: Setting kubeconfig for the cluster
     shell: az aks get-credentials --resource-group {{ AKS_resource_group }} --name {{ aks_name }}
