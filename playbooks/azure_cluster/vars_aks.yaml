@@ -4,4 +4,4 @@ aks_name: dyce-azure-aks
 client_id: "dfb95e46-13e8-4bec-a677-0a5f973dc2bf"
 client_secret: "Oce7Q~lkHf-s.ZBeJ6HDloaiNbcwl3JdEuFSy"
 k8s_version: "1.22.2"
-node_count: 2
+node_count: 3
