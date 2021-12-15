@@ -1,0 +1,15 @@
+- name: New AKS Cluster
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: pulling ls
+    shell: 
+      cmd: ls -la
+      chdir: /home/ubuntu
+    register: result
+  - debug: 
+           var: result.stdout
+  - name: copying file 
+    copy:
+      src: /home/ubuntu/.kube/config
+      dest: '{{home_dir}}/vars/kubeconfig'

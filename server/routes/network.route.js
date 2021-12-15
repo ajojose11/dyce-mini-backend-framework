@@ -13,12 +13,12 @@ module.exports = router;
 router.use(passport.authenticate('jwt', { session: false }));
 
 
-router. get('/create', asyncHandler(createNetwork) );
+router.post('/create', asyncHandler(createNetwork) );
 
 async function createNetwork(req, res) {
     
     //create a directory for the organizaton, var directory and kubeconfig directory
-    var networkDir = req.body.homedir+'/'+ req.body.name + '/var/kubeconfig';
+    var networkDir = req.body.homedir+'/'+ req.body.name + '/vars/kubeconfig';
     if (!fs.existsSync(networkDir)){
         fs.mkdirSync(networkDir, { recursive: true });
     }
@@ -33,28 +33,37 @@ async function createNetwork(req, res) {
         node_count: 3,
         home_dir: networkHome
     }
-
-    // var command = new Ansible.AdHoc().module('shell').hosts('local').args("echo 'hello'");
-    // command.exec();
-    var command = new Ansible.Playbook().playbook('azure_aks')
+    var cluster_network = {
+        user: req.body._id,
+        name: req.body.name,
+        homedir: networkHome,
+        status: 0    
+    }
+    try {
+    var command = new Ansible.Playbook().playbook('dummy')
                                     .variables(playbook_vars);
 
-    var promise = command.exec({cwd:"/Users/admin/Project_codes/dyce-mini-backend-framework/server/playbooks"})
+    var promise = command.exec({cwd:"/home/ubuntu/dyce-mini-backend-framework/server/playbooks"})
    
     command.on('stdout', function(data) { console.log(data.toString()); });
     command.on('stderr', function(data) { console.log(data.toString()); });
 
-    
+    await Network.create(cluster_network)
 
-    promise.then((result => {
+    promise.then((result) => {
         console.log(result.output);
         console.log(result.code);
-        res.send('Success')
+        Network.findOneAndUpdate({name: req.body.name }, {status: 1})
+        res.json({status: 'Success'});
     },(err) => {
         console.error(err);
+        Network.findOneAndUpdate({name: req.body.name }, {status: 2})
         res.sendStatus(500)
-      }))
-
+      })
+    } catch (err) {
+        Network.findOneAndUpdate({name: req.body.name }, {status: 2})
+        res.sendStatus(500)
+    }
     
 
 

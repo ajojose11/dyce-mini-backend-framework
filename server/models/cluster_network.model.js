@@ -22,6 +22,10 @@ const ClusterSchema = new mongoose.Schema(
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
+    },
+    status: {
+      type: Number,
+      required: true
     }
   },
   {
