@@ -1,0 +1,76 @@
+<div class="d-flex align-items-center auth px-0">
+  <div class="row w-100 mx-0">
+    <div class="col-lg-4 mx-auto">
+      <div class="brand-logo align-items-center text-center align-self-start" style="position: relative;">
+        <img src="assets/images/cube-3d.png" alt="logo">
+        <p>Dyce - Automate Blockchain</p>
+      </div>
+      <div class="auth-form-dark text-left py-5 px-4 px-sm-5">
+       
+        <h4>New here?</h4>
+        <h6 class="font-weight-light">Signing up is easy. It only takes a few steps</h6>
+        <form class="pt-3" [formGroup]="userForm">
+          <div class="form-group">
+
+              <input class="form-control form-control-lg"
+                matInput
+                placeholder="Fullname"
+                formControlName="fullname"
+                name="fullname"
+                required
+              />
+          </div>
+          <div class="form-group">
+            <input class="form-control form-control-lg"
+            matInput
+            placeholder="Email"
+            formControlName="email"
+            name="email"
+            required
+          />
+          <mat-error *ngIf="email.invalid && email.hasError('email')"
+            >Invalid email address</mat-error
+          >
+          </div>
+         
+          <div class="form-group">
+            <input class="form-control form-control-lg"
+            matInput
+            placeholder="Password"
+            formControlName="password"
+            type="password"
+            name="password"
+            required
+          />
+          </div>
+
+          <div class="form-group">
+            <input class="form-control form-control-lg"
+                matInput
+                placeholder="Repeat Password"
+                formControlName="repeatPassword"
+                type="password"
+                name="repeatPassword"
+                required
+              />
+              <mat-error
+                *ngIf="
+                  repeatPassword.invalid &&
+                  repeatPassword.hasError('passwordMatch')
+                "
+                >Password mismatch</mat-error
+              >
+
+          </div>
+         
+          <div class="mt-3">
+            <a class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn" (click)="register()" >SIGN UP</a>
+          </div>
+          <div class="text-center mt-4 font-weight-light">
+            Already have an account? <a routerLink="/login" class="text-primary">Login</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
