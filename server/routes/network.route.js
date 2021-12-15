@@ -40,7 +40,7 @@ async function createNetwork(req, res) {
         status: 0    
     }
     try {
-    var command = new Ansible.Playbook().playbook('dummy')
+    var command = new Ansible.Playbook().playbook('azure_aks')
                                     .variables(playbook_vars);
 
     var promise = command.exec({cwd:"/home/ubuntu/dyce-mini-backend-framework/server/playbooks"})
