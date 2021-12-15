@@ -40,6 +40,7 @@ async function createNetwork(req, res) {
         status: 0    
     }
     try {
+    await Network.create(cluster_network)
     var command = new Ansible.Playbook().playbook('azure_aks')
                                     .variables(playbook_vars);
 
@@ -48,7 +49,7 @@ async function createNetwork(req, res) {
     command.on('stdout', function(data) { console.log(data.toString()); });
     command.on('stderr', function(data) { console.log(data.toString()); });
 
-    await Network.create(cluster_network)
+    
 
     promise.then((result) => {
         console.log(result.output);
