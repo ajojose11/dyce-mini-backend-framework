@@ -20,6 +20,12 @@ export class ApiService {
 
  }
 
+ listNetwork(data): any {
+  
+    return this.http.get('/api/network/list', {params: {_id: data._id}})
+
+ }
+
 
 
 
