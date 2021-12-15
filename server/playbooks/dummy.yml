@@ -9,7 +9,6 @@
     register: result
   - debug: 
            var: result.stdout
-  - name: copying file 
-    copy:
-      src: /home/ubuntu/.kube/config
-      dest: '{{home_dir}}/vars/kubeconfig'
+  - name: pulling a ping 
+    shell: ping a
+      

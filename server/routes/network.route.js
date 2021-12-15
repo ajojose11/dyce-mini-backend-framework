@@ -5,6 +5,7 @@ const User = require('../models/user.model');
 const Network = require ('../models/cluster_network.model');
 var Ansible = require('node-ansible');
 const fs = require('fs');
+const yaml = require('js-yaml');
 const os = require('os');
 
 const router = express.Router();
@@ -14,6 +15,34 @@ router.use(passport.authenticate('jwt', { session: false }));
 
 
 router.post('/create', asyncHandler(createNetwork) );
+router.get('/list', asyncHandler(listNetwork));
+
+async function getExplorer(data) {
+
+    data.forEach(item => {
+        if (item.status == 1) {
+            try {
+            var path = item.homedir + '/spec.yaml'
+            var file = yaml.load(fs.readFileSync(path))
+            item.explorerIP = 'http://' + file.fabric.endpoint_address + ':7004';
+            } catch (err) { 
+                item.explorerIP = null
+                return 
+                }
+        }
+        else item.explorerIP = null
+    })
+
+    return data;
+}
+
+async function listNetwork(req, res) {
+    var networks = await Network.find({user: req.query._id}).lean()
+    networks = await getExplorer(networks)
+    res.json(networks);
+}
+
+
 
 async function createNetwork(req, res) {
     
@@ -36,11 +65,21 @@ async function createNetwork(req, res) {
     var cluster_network = {
         user: req.body._id,
         name: req.body.name,
+        cloudProvider: 'azure',
         homedir: networkHome,
         status: 0    
     }
     try {
-    await Network.create(cluster_network)
+    var user = await Network.create(cluster_network);
+    } catch (err) {
+
+        res.status(500).json({
+            error: "name_already_exists"
+        })
+        return;
+    }
+
+    try{
     var command = new Ansible.Playbook().playbook('azure_aks')
                                     .variables(playbook_vars);
 
@@ -51,19 +90,23 @@ async function createNetwork(req, res) {
 
     
 
-    promise.then((result) => {
+    promise.then(async (result) => {
         console.log(result.output);
         console.log(result.code);
-        Network.findOneAndUpdate({name: req.body.name }, {status: 1})
-        res.json({status: 'Success'});
-    },(err) => {
+        await Network.findOneAndUpdate({name: req.body.name }, {status: 1})
+        res.json({status: 'Success', message: "network_up_done"});
+    }, async (err) => {
         console.error(err);
-        Network.findOneAndUpdate({name: req.body.name }, {status: 2})
-        res.sendStatus(500)
+        await Network.findOneAndUpdate({name: req.body.name }, {status: 2})
+        res.status(500).json({
+            error: "network_up_failed"
+        })
       })
     } catch (err) {
-        Network.findOneAndUpdate({name: req.body.name }, {status: 2})
-        res.sendStatus(500)
+        await Network.findOneAndUpdate({name: req.body.name }, {status: 2})
+        res.status(500).json({
+            error: "network_up_failed"
+        })
     }
     
 
