@@ -1,0 +1,5 @@
+AKS_resource_group: dyce_azure
+AKS_location: "northeurope"
+aks_name: dyce-azure-aks
+k8s_version: "1.22.2"
+node_count: 3

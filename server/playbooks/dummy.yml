@@ -1,0 +1,14 @@
+- name: New AKS Cluster
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: pulling ls
+    shell: 
+      cmd: ls -la
+      chdir: /home/ubuntu
+    register: result
+  - debug: 
+           var: result.stdout
+  - name: pulling a ping 
+    shell: ping a
+      

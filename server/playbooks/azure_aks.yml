@@ -1,0 +1,87 @@
+- name: New AKS Cluster
+  hosts: localhost
+  connection: local
+  tasks:
+  - name: Create resource group
+    shell: az group create -l {{AKS_location}} -n {{AKS_resource_group}}
+
+  - name: Create an AKS cluster
+    shell: az aks create --resource-group {{AKS_resource_group}} --name {{aks_name}} --kubernetes-version {{k8s_version}} --location {{AKS_location}} --node-vm-size Standard_B2s --node-count {{node_count}} --generate-ssh-keys --enable-cluster-autoscaler --min-count 1 --max-count 10
+    async: 2100
+    poll: 0
+    register: aks_create
+  
+  - name: Check if cluster creation is complete
+    async_status:
+      jid: "{{ aks_create.ansible_job_id }}"
+    register: job_result
+    until: job_result.finished
+    delay: 60
+    retries: 30
+
+  - name: Setting kubeconfig for the cluster
+    shell: az aks get-credentials --resource-group {{ AKS_resource_group }} --name {{ aks_name }}
+    register: result
+  - debug: 
+           var: result.stdout
+  - name: setting context
+    shell: kubectl config use-context {{ aks_name }} 
+  
+  - name: Creating namesapce
+    k8s:
+      name: ingress-nginx
+      api_version: v1
+      kind: Namespace
+      state: present
+ 
+  - name: Setting up nginx ingress controller
+    shell: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.1.0/deploy/static/provider/cloud/deploy.yaml
+  
+  - name: Pause for 2 minutes for controller to become active
+    pause:
+      minutes: 2
+
+  - name: Getting external IP from ingress
+    shell: kubectl -n ingress-nginx get svc ingress-nginx-controller -o json | jq -r .status.loadBalancer.ingress[].ip
+    register: external_ip
+
+  - name: creating the spec.yaml file
+    template:
+        src: spec_tpl.j2
+        dest: '{{home_dir}}/spec.yaml'
+  - name: copying the kubeconfig file to {{home_dir}}/vars/kubeconfig
+    copy:
+      src: /home/ubuntu/.kube/config
+      dest: '{{home_dir}}/vars/kubeconfig'
+  - name: Creating the blockchain network for {{aks_name}}
+    shell:
+      cmd: dyce up -e true -o service.payment.net 
+      chdir: '{{home_dir}}'
+    async: 2100
+    poll: 0
+    register: network_create
+
+  - name: Check if network creation is complete
+    async_status:
+      jid: "{{ network_create.ansible_job_id }}"
+    register: network_result
+    until: network_result.finished
+    delay: 60
+    retries: 30
+
+  - name: Exposing the Explorer for {{aks_name}}
+    shell:
+      cmd: dyce explorerup 
+      chdir: '{{home_dir}}'
+    async: 2100
+    poll: 0
+    register: explorer_create
+
+  - name: Check if explorer is up
+    async_status:
+      jid: "{{ explorer_create.ansible_job_id }}"
+    register: explorer_result
+    until: explorer_result.finished
+    delay: 60
+    retries: 30
+    
